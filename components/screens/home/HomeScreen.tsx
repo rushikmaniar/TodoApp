@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {SafeAreaProvider} from "react-native-safe-area-context";
 import FAB from "react-native-fab";
 import {appColors} from "../../../styles/Variables";
 import TodoList from "./TodoList";
 import {ITodo} from "../../../utils/entities";
+import {SafeAreaProvider} from "react-native-safe-area-context";
 
 export function HomeScreen(props: any) {
     const [data, setData] = useState<ITodo[]>([]);
