@@ -1,92 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { FlatList, ListRenderItemInfo, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import React from "react";
+import { SafeAreaView, StyleSheet, View } from "react-native";
 import { ThemeProvider } from "react-native-elements";
+import { NavigationContainer } from "@react-navigation/native";
+import { HomeScreen } from "./screens/HomeScreen";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import DetailsScreen from "./screens/DetailsScreen";
+import { Todo } from "./entites";
+import { Provider } from "react-redux";
+import store from "./store/AppStore";
 
-interface Todo {
-    id: string;
-    text: string;
-    isDone: boolean;
-}
+const Stack = createNativeStackNavigator();
+
+export type RootStackParamList = {
+    Home: undefined;
+    Details: {
+        todo: Todo;
+    };
+};
 
 export default function App() {
-    const [todos, setTodos] = useState<Todo[]>([]);
-    const [userInput, setUserInput] = useState<string>("");
-
-    useEffect(() => {
-        const data = Array.from(new Array(3).keys()).map((value, index) => {
-            return {
-                id: index.toString(),
-                text: `Todo-${value.toString()}`,
-                isDone: false,
-            };
-        });
-
-        setTodos(data);
-    }, []);
-
-    const toggleIsDone = (todo: Todo) => {
-        setTodos(
-            todos.map((item) => {
-                return {
-                    ...item,
-                    ...(item.id === todo.id && { isDone: !todo.isDone }),
-                };
-            })
-        );
-    };
-
-    const renderItem = (itemInfo: ListRenderItemInfo<Todo>) => {
-        const { item } = itemInfo;
-        return (
-            <Pressable onPress={() => toggleIsDone(item)}>
-                <View style={styles.rowView}>
-                    <Text style={styles.rowViewText}>{item.text}</Text>
-                    {item.isDone && <AntDesign name="check" size={24} color="black" />}
-                </View>
-            </Pressable>
-        );
-    };
-
-    const onAdd = () => {
-        if (!userInput) {
-            return;
-        }
-        setTodos([
-            ...todos,
-            {
-                id: new Date().getTime().toString(),
-                text: userInput,
-                isDone: false,
-            },
-        ]);
-        setUserInput("");
-    };
-
     return (
-        <ThemeProvider>
-            <View style={styles.container}>
-                <SafeAreaView style={{ marginTop: 30, flex: 1 }}>
-                    <View style={{ flex: 1 }}>
-                        <FlatList data={todos} renderItem={renderItem} keyExtractor={(item) => item.id} />
-                    </View>
-                    <View style={styles.userTextViewContainer}>
-                        <View style={styles.userTextView}>
-                            <TextInput
-                                placeholder={"Todo..."}
-                                style={{
-                                    fontSize: 25,
-                                    paddingLeft: 10,
-                                }}
-                                value={userInput}
-                                onChangeText={setUserInput}
-                            />
-                        </View>
-                        <AntDesign name="pluscircle" size={40} color="white" style={{ padding: 10 }} onPress={onAdd} />
-                    </View>
-                </SafeAreaView>
-            </View>
-        </ThemeProvider>
+        <Provider store={store}>
+            <ThemeProvider>
+                <View style={styles.container}>
+                    <SafeAreaView style={{ flex: 1 }}>
+                        <NavigationContainer>
+                            <Stack.Navigator initialRouteName={"Home"}>
+                                <Stack.Screen name="Home" component={HomeScreen} />
+                                <Stack.Screen name="Details" component={DetailsScreen} />
+                            </Stack.Navigator>
+                        </NavigationContainer>
+                    </SafeAreaView>
+                </View>
+            </ThemeProvider>
+        </Provider>
     );
 }
 
@@ -95,38 +42,5 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#eaebff",
         display: "flex",
-    },
-    listView: {
-        flex: 1,
-    },
-    rowView: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        margin: 8,
-        height: 50,
-        padding: 10,
-        alignItems: "center",
-        backgroundColor: "#fff",
-        borderRadius: 10,
-    },
-    rowViewText: {
-        paddingLeft: 10,
-    },
-    userTextViewContainer: {
-        justifyContent: "center",
-        alignItems: "center",
-        display: "flex",
-        flexDirection: "row",
-        backgroundColor: "#5b96ff",
-    },
-    userTextView: {
-        flex: 1,
-        justifyContent: "center",
-        backgroundColor: "#fff",
-        height: 50,
-        marginLeft: 10,
-        borderRadius: 10,
-        borderColor: "#000",
-        borderWidth: 1,
     },
 });
